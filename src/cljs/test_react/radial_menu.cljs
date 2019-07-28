@@ -49,13 +49,13 @@
 
 (defn calc-y-position [radius i n-icons]
   (pprint/cl-format nil "~,2fpx" (-> i
-                                     (/ (count n-icons))
+                                     (/ n-icons)
                                      frac->rad
                                      Math/sin
                                      (* radius))))
 (defn calc-x-position [radius i n-icons]
   (pprint/cl-format nil "~,2fpx" (-> i
-                                     (/ (count n-icons))
+                                     (/ n-icons)
                                      frac->rad
                                      Math/cos
                                      (* radius))))
@@ -80,14 +80,34 @@
 ;; Instaed of deleting - have a property for forward and reverse animation...
 (defn toggle-keyframe []
   (if @active?
-    (reduce #(create-expand-animation %2) [] (range 8))
+    (reduce #(create-expand-animation (first %2)
+                                      (second %2)
+                                      (nth %2 2))
+            []
+            [[200 0 8]
+             [200 1 8]
+             [200 2 8]
+             [200 3 8]
+             [200 4 8]
+             [200 5 8]
+             [200 6 8]
+             [200 7 8]])
     (reduce #(delete-expand-animation %2) [] (range 8)))
   (reset! active? (not @active?)))
 
-(reduce #(create-expand-animation %2 %3 %4) []
-        [[100 100] [1 2] [8 8]] #_(partition (constantly 100)
-                                             (range 8)
-                                             (constantly 8)))
+(create-expand-animation 200 1 8)
+(reduce #(create-expand-animation (first %2)
+                                  (second %2)
+                                  (nth %2 2))
+        []
+        [[200 0 8]
+         [200 1 8]
+         [200 2 8]
+         [200 3 8]
+         [200 4 8]
+         [200 5 8]
+         [200 6 8]
+         [200 7 8]])
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; TEST/EXAMPLE CODE
