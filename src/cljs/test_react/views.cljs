@@ -3,7 +3,8 @@
    [re-frame.core :as re-frame]
    [test-react.subs :as subs]
    [stylefy.core :as stylefy :refer [use-style]]
-   [garden.units :as g]))
+   [garden.units :as g]
+   [cljs.pprint :as pprint]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Setup/init
@@ -59,23 +60,38 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ON CLICK BEHAVIOR
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(def radius 200)
+(defonce active? (atom true))
+(defn calc-y-position [i]
+  (pprint/cl-format nil "~,2fpx" (-> i
+                                     (/ (count icon-list))
+                                     frac->rad
+                                     Math/sin
+                                     (* radius))))
+(defn calc-x-position [i]
+  (pprint/cl-format nil "~,2fpx" (-> i
+                                     (/ (count icon-list))
+                                     frac->rad
+                                     Math/cos
+                                     (* radius))))
 
-(defonce active? (atom false))
+(defn create-expand-animation [i]
+  (stylefy/keyframes (str"icon-" i "-open")
+                     [(g/percent 0)
+                      {:top "0px"
+                       :left "0px"}]
+                     [(g/percent 100)
+                      {:top (calc-y-position i)
+                       :left (calc-x-position i)}]))
+
+(defn delete-expand-animation [i]
+  (stylefy/keyframes (str"icon-" i "-open")))
+
 (defn toggle-keyframe []
   (if @active?
-    (stylefy/keyframes "flash-item-2")
-    (stylefy/keyframes "flash-item-2"
-                       [(g/percent 0)
-                        {:background-color "green"
-                         :left "0px"}]
-                       [(g/percent 50)
-                        {:background-color "yellow"
-                         :left "200px"}]
-                       [(g/percent 100)
-                        {:background-color "green"
-                         :left "0px"}]))
+    (reduce #(create-expand-animation %2) [] (range 8))
+    (reduce #(delete-expand-animation %2) [] (range 8)))
   (reset! active? (not @active?)))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; TEST/EXAMPLE CODE
@@ -97,24 +113,25 @@
                         {:background-image "url(images/home.svg)"
                          :border-radius "80px"}))
 
-(defn make-radial-icon-style [img]
+(defn make-radial-icon-style [i img]
   (merge simple-box
          {:background-image (str "url(" img ")" )
           :border-radius "80px"
-          :animation-name "flash-item-2"
+          :animation-name (str "icon-" i "-open")
           :animation-duration "3s"
-          :animation-delay (str (/ 33 (rand-int 100)) "s")
+          ;;:animation-delay (str (/ 33 (rand-int 100)) "s")
           :animation-iteration-count "infinite"}))
 
-(defn make-button [img]
+(defn make-button [i img]
   [:button (merge {:onClick toggle-keyframe}
-                  (use-style (make-radial-icon-style img)))])
+                  (use-style (make-radial-icon-style i img)))])
 
 (defn make-buttons []
   [:div {:style {:position "relative"
                  :top "50%"
                  :left "50%"}}
-   (map make-button icon-list)])
+   (map-indexed make-button icon-list)])
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; FINAL RENDERING
