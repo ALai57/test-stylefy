@@ -60,7 +60,7 @@
 ;; ON CLICK BEHAVIOR
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defonce active? (atom true))
+(defonce active? (atom false))
 (defn toggle-keyframe []
   (if @active?
     (stylefy/keyframes "flash-item-2")
@@ -92,18 +92,6 @@
                  :background-position-x "center"
                  :background-position-y "center"
                  :border-radius "80px"})
-
-
-(stylefy/keyframes "flash-item-2"
-                   [(g/percent 0)
-                    {:background-color "green"
-                     :left "0px"}]
-                   [(g/percent 50)
-                    {:background-color "yellow"
-                     :left "200px"}]
-                   [(g/percent 100)
-                    {:background-color "green"
-                     :left "0px"}])
 
 (def center-item (merge simple-box
                         {:background-image "url(images/home.svg)"
