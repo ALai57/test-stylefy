@@ -3,7 +3,7 @@
    [re-frame.core :as re-frame]
    [test-react.subs :as subs]
    [stylefy.core :as stylefy :refer [use-style]]
-   ))
+   [garden.units :as g]))
 
 (stylefy/init)
 
@@ -22,22 +22,6 @@
     (println mybutton)
     (set! (.. mybutton -style -top) "10px")
     (println (.. mybutton -style -top))))
-
-;; var style = document.createElement('style');
-;; style.type = 'text/css';
-;; var keyFrames = '\
-;; @-webkit-keyframes spinIt {\
-;;     100% {\
-;;         -webkit-transform: rotate(A_DYNAMIC_VALUE);\
-;;     }\
-;; }\
-;; @-moz-keyframes spinIt {\
-;;     100% {\
-;;         -webkit-transform: rotate(A_DYNAMIC_VALUE);\
-;;     }\
-;; }';
-;; style.innerHTML = keyFrames.replace(/A_DYNAMIC_VALUE/g, "180deg");
-;; document.getElementsByTagName('head')[0].appendChild(style);
 
 (defn main-circle-icon []
   [:div.main-image {:style {:position "relative"
@@ -72,10 +56,16 @@
                   :width "80px"
                   :border-radius "80px"}}]])
 
-(stylefy/keyframes "simple-animation"
-                   [:from
+#_(stylefy/keyframes "simple-animation"
+                     [:from
+                      {:background-color "red"}]
+                     [:to
+                      {:background-color "blue"}])
+
+(stylefy/keyframes "expand-item"
+                   [(g/percent 50)
                     {:background-color "red"}]
-                   [:to
+                   [(g/percent 100)
                     {:background-color "blue"}])
 
 (def simple-box {:border "1px solid black"
@@ -86,10 +76,9 @@
                  :height "150px"})
 
 (def animated-box (merge simple-box
-                         {:animation-name "simple-animation"
+                         {:animation-name "expand-item"
                           :animation-duration "3s"
                           :animation-iteration-count "infinite"}))
-
 
 (defn main-panel []
   (let [name (re-frame/subscribe [::subs/name])]
@@ -104,3 +93,32 @@
       [main-circle-icon]]
      [:div#animated-box (use-style animated-box)]
      ]))
+
+
+(comment
+  (require '[garden.stylesheet :refer [at-keyframes]])
+  (require '[garden.core :refer [css]])
+  (require '[garden.compiler :as compiler])
+  (let [identified "expand-item"
+        frames [[(g/percent 50)
+                 {:background-color "red"}]
+                [(g/percent 100)
+                 {:background-color "blue"}]
+                [:from
+                 {:background-color "red"}]]
+        adk (apply at-keyframes identifier frames)
+        css_result (css adk) ;; problem is here!
+        [flags & rules] adk
+        c_result (compiler/do-compile flags rules)
+        exr (->> (compiler/expand-stylesheet rules)
+                 (filter compiler/top-level-expression?)
+                 (map #(println "TYPE!!!!! "(type %)))
+                 #_(map #(println "NEXTCHECK" %))
+                 #_(map compiler/render-css ) ;; THe problem is in the expand functions missing selectors
+                 #_(remove nil?)              ;; BEFORE CSSAtRule
+                 #_(rule-join))
+        ]
+    (println "-----------------------DONE ----------------")
+    (println "-----------------------DONE ----------------")
+    (println "-----------------------DONE ----------------"))
+  )
