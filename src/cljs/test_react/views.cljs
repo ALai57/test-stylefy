@@ -2,8 +2,10 @@
   (:require
    [re-frame.core :as re-frame]
    [test-react.subs :as subs]
-   ;;[stylefy.core :as stylefy]
+   [stylefy.core :as stylefy :refer [use-style]]
    ))
+
+(stylefy/init)
 
 (def icon-list ["images/accessibility.svg"
                 "images/favorite.svg"
@@ -20,12 +22,6 @@
     (println mybutton)
     (set! (.. mybutton -style -top) "10px")
     (println (.. mybutton -style -top))))
-
-#_(stylefy/keyframes "simple-animation"
-                     [:from
-                      {:background-color "red"}]
-                     [:to
-                      {:background-color "blue"}])
 
 ;; var style = document.createElement('style');
 ;; style.type = 'text/css';
@@ -76,6 +72,25 @@
                   :width "80px"
                   :border-radius "80px"}}]])
 
+(stylefy/keyframes "simple-animation"
+                   [:from
+                    {:background-color "red"}]
+                   [:to
+                    {:background-color "blue"}])
+
+(def simple-box {:border "1px solid black"
+                 :background-color "#FFDDDD"
+                 :text-align :center
+                 :padding "5px"
+                 :width "150px"
+                 :height "150px"})
+
+(def animated-box (merge simple-box
+                         {:animation-name "simple-animation"
+                          :animation-duration "3s"
+                          :animation-iteration-count "infinite"}))
+
+
 (defn main-panel []
   (let [name (re-frame/subscribe [::subs/name])]
     [:div
@@ -87,4 +102,5 @@
                                     :height "80%"}}
       (map outer-circle-icons icon-list)
       [main-circle-icon]]
+     [:div#animated-box (use-style animated-box)]
      ]))
