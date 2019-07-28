@@ -56,6 +56,25 @@
 ;; DOM
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ON CLICK BEHAVIOR
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defonce active? (atom true))
+(defn toggle-keyframe []
+  (if @active?
+    (stylefy/keyframes "flash-item-2")
+    (stylefy/keyframes "flash-item-2"
+                       [(g/percent 0)
+                        {:background-color "green"
+                         :left "0px"}]
+                       [(g/percent 50)
+                        {:background-color "yellow"
+                         :left "200px"}]
+                       [(g/percent 100)
+                        {:background-color "green"
+                         :left "0px"}]))
+  (reset! active? (not @active?)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -86,46 +105,32 @@
                     {:background-color "green"
                      :left "0px"}])
 
-(def animated-box-2 (merge simple-box
-                           {:background-image "url(images/home.svg)"
-                            :border-radius "80px"
-                            :animation-name "flash-item-2"
-                            :animation-duration "3s"
-                            :animation-iteration-count "infinite"}))
+(def center-item (merge simple-box
+                        {:background-image "url(images/home.svg)"
+                         :border-radius "80px"}))
 
-(defn make-box-style [img] (merge simple-box
-                                  {:background-image (str "url(" img ")" )
-                                   :border-radius "80px"
-                                   :animation-name "flash-item-2"
-                                   :animation-duration "3s"
-                                   :animation-delay (str (/ 33 (rand-int 100)) "s")
-                                   :animation-iteration-count "infinite"}))
-(make-box-style (first icon-list))
+(defn make-radial-icon-style [img]
+  (merge simple-box
+         {:background-image (str "url(" img ")" )
+          :border-radius "80px"
+          :animation-name "flash-item-2"
+          :animation-duration "3s"
+          :animation-delay (str (/ 33 (rand-int 100)) "s")
+          :animation-iteration-count "infinite"}))
 
-(defonce active? (atom true))
-(defn toggle-keyframe []
-  (if @active?
-    (stylefy/keyframes "flash-item-2")
-    (stylefy/keyframes "flash-item-2"
-                       [(g/percent 0)
-                        {:background-color "green"
-                         :left "0px"}]
-                       [(g/percent 50)
-                        {:background-color "yellow"
-                         :left "200px"}]
-                       [(g/percent 100)
-                        {:background-color "green"
-                         :left "0px"}]))
-  (reset! active? (not @active?)))
+(defn make-button [img]
+  [:button (merge {:onClick toggle-keyframe}
+                  (use-style (make-radial-icon-style img)))])
+
+(defn make-buttons []
+  [:div {:style {:position "relative"
+                 :top "50%"
+                 :left "50%"}}
+   (map make-button icon-list)])
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; FINAL RENDERING
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn make-button [img]
-  [:button (merge {:onClick toggle-keyframe}
-                  (use-style (make-box-style img)))])
-
-(defn make-buttons []
-  [:div (map make-button icon-list)])
 
 (defn main-panel []
   (let [name (re-frame/subscribe [::subs/name])]
@@ -135,43 +140,12 @@
                                     :top "100px"
                                     :left "10%"
                                     :width "80%"
-                                    :height "80%"}}]
-
-     [:div.main-image {:style {:position "relative"
-                               :top "50%"
-                               :left "50%"}}
-      [:button#animated-box-2 (merge {:onClick toggle-keyframe}
-                                     (use-style animated-box-2))]]
-     (make-buttons)
-     [:div#s]
+                                    :height "80%"}}
+      [:div.main-image {:style {:position "relative"
+                                :top "50%"
+                                :left "50%"}}
+       [:button#center-item (merge {:onClick toggle-keyframe}
+                                   (use-style center-item))]]
+      (make-buttons)]
      ]))
 
-
-
-(comment
-  (require '[garden.stylesheet :refer [at-keyframes]])
-  (require '[garden.core :refer [css]])
-  (require '[garden.compiler :as compiler])
-  (let [identified "expand-item"
-        frames [[(g/percent 50)
-                 {:background-color "red"}]
-                [(g/percent 100)
-                 {:background-color "blue"}]
-                [:from
-                 {:background-color "red"}]]
-        adk (apply at-keyframes identifier frames)
-        css_result (css adk) ;; problem is here!
-        [flags & rules] adk
-        c_result (compiler/do-compile flags rules)
-        exr (->> (compiler/expand-stylesheet rules)
-                 (filter compiler/top-level-expression?)
-                 (map #(println "TYPE!!!!! "(type %)))
-                 #_(map #(println "NEXTCHECK" %))
-                 #_(map compiler/render-css ) ;; THe problem is in the expand functions missing selectors
-                 #_(remove nil?)              ;; BEFORE CSSAtRule
-                 #_(rule-join))
-        ]
-    (println "-----------------------DONE ----------------")
-    (println "-----------------------DONE ----------------")
-    (println "-----------------------DONE ----------------"))
-  )
