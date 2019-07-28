@@ -2,6 +2,7 @@
   (:require
    [re-frame.core :as re-frame]
    [test-react.subs :as subs]
+   [test-react.radial-menu :as rm]
    [stylefy.core :as stylefy :refer [use-style]]
    [garden.units :as g]
    [cljs.pprint :as pprint]))
@@ -26,25 +27,6 @@
   (* 2 Math/PI x))
 
 (def n-icons (count icon-list))
-
-(defn create-keyframe [i]
-  (stylefy/keyframes (str "expand-item-" i)
-                     [(g/percent 50)
-                      {:background-color "red"
-                       :top (str (-> i
-                                     (/ 8)
-                                     frac->rad
-                                     Math/sin
-                                     (* 50)) "px")
-                       :left "-100px"}]
-                     [(g/percent 100)
-                      {:background-color "black"
-                       :top (str (-> i
-                                     (/ 8)
-                                     frac->rad
-                                     Math/sin
-                                     (* 50)) "px")
-                       :left "200px"}]))
 
 (defn myfunction []
   (let [mybutton (-> js/document
@@ -118,9 +100,11 @@
          {:background-image (str "url(" img ")" )
           :border-radius "80px"
           :animation-name (str "icon-" i "-open")
-          :animation-duration "3s"
+          :animation-duration "1s"
           ;;:animation-delay (str (/ 33 (rand-int 100)) "s")
-          :animation-iteration-count "infinite"}))
+          :animation-fill-mode "forwards"
+          ;;:animation-iteration-count "infinite"
+          }))
 
 (defn make-button [i img]
   [:button (merge {:onClick toggle-keyframe}
@@ -140,17 +124,24 @@
 (defn main-panel []
   (let [name (re-frame/subscribe [::subs/name])]
     [:div
-     [:h1 "Hello frome " @name]
-     [:div#image-container {:style {:position "absolute"
-                                    :top "100px"
-                                    :left "10%"
-                                    :width "80%"
-                                    :height "80%"}}
-      [:div.main-image {:style {:position "relative"
-                                :top "50%"
-                                :left "50%"}}
-       [:button#center-item (merge {:onClick toggle-keyframe}
-                                   (use-style center-item))]]
-      (make-buttons)]
+     [:h1 "Hello from " @name]
+     (rm/radial-menu icon-list nil)
      ]))
 
+
+#_(defn -main-panel []
+    (let [name (re-frame/subscribe [::subs/name])]
+      [:div
+       [:h1 "Hello from " @name]
+       [:div#image-container {:style {:position "absolute"
+                                      :top "100px"
+                                      :left "10%"
+                                      :width "80%"
+                                      :height "80%"}}
+        [:div.main-image {:style {:position "relative"
+                                  :top "50%"
+                                  :left "50%"}}
+         [:button#center-item (merge {:onClick toggle-keyframe}
+                                     (use-style center-item))]]
+        (make-buttons)]
+       ]))
