@@ -17,5 +17,5 @@
 
 (re-frame/reg-event-db
  :click-radial-icon
- (fn [db [_ value]] 
+ (fn [db [_ value]]
    (assoc db :active-icon value)))

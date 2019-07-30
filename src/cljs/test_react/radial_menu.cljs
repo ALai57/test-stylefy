@@ -99,8 +99,8 @@
 (defn make-radial-icon-style [i img]
   (let [radial-menu-open? (subscribe [:radial-menu-open?])
         animation (if @radial-menu-open?
-                    (str "icon-" i "-collapse")
-                    (str "icon-" i "-open"))]
+                    (str "icon-" i "-open")
+                    (str "icon-" i "-collapse"))]
     (merge base-icon-style
            {:background-image
             (str "url(" img "), "
