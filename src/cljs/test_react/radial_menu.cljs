@@ -26,8 +26,8 @@
                       :background-color "#FFDDDD"
                       :text-align :center
                       :padding "5px"
-                      :width "150px"
-                      :height "150px"
+                      :width "75px"
+                      :height "75px"
                       :position "absolute"
                       :background-repeat "no-repeat"
                       :background-position-x "center"
@@ -35,7 +35,9 @@
                       :border-radius "80px"})
 
 (def center-icon-style (merge base-icon-style
-                              {:background-image "url(images/home.svg)"
+                              {:background-image
+                               (str "url(images/home.svg),"
+                                    "radial-gradient(#6B9EB8 5%, #59B1DE 60%, #033882 70%)")
                                :border-radius "80px"}))
 
 (def radial-icons-style {:position "relative"
@@ -92,23 +94,6 @@
 (defn toggle-keyframe []
   (dispatch [:toggle-menu]))
 
-(defn -toggle-keyframe []
-  (if @active?
-    (reduce #(create-expand-animation (first %2)
-                                      (second %2)
-                                      (nth %2 2))
-            []
-            [[200 0 8]
-             [200 1 8]
-             [200 2 8]
-             [200 3 8]
-             [200 4 8]
-             [200 5 8]
-             [200 6 8]
-             [200 7 8]])
-    (reduce #(delete-expand-animation %2) [] (range 8)))
-  (reset! active? (not @active?)))
-
 (comment
   (create-expand-animation 200 1 8)
   (create-collapse-animation 200 1 8))
@@ -117,26 +102,26 @@
                                   (second %2)
                                   (nth %2 2))
         []
-        [[200 0 8]
-         [200 1 8]
-         [200 2 8]
-         [200 3 8]
-         [200 4 8]
-         [200 5 8]
-         [200 6 8]
-         [200 7 8]])
+        [[100 0 8]
+         [100 1 8]
+         [100 2 8]
+         [100 3 8]
+         [100 4 8]
+         [100 5 8]
+         [100 6 8]
+         [100 7 8]])
 (reduce #(create-collapse-animation (first %2)
                                     (second %2)
                                     (nth %2 2))
         []
-        [[200 0 8]
-         [200 1 8]
-         [200 2 8]
-         [200 3 8]
-         [200 4 8]
-         [200 5 8]
-         [200 6 8]
-         [200 7 8]])
+        [[100 0 8]
+         [100 1 8]
+         [100 2 8]
+         [100 3 8]
+         [100 4 8]
+         [100 5 8]
+         [100 6 8]
+         [100 7 8]])
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; TEST/EXAMPLE CODE
@@ -148,9 +133,13 @@
                     (str "icon-" i "-collapse")
                     (str "icon-" i "-open"))]
     (merge base-icon-style
-           {:background-image (str "url(" img ")" )
+           {:background-image
+            (str "url(" img "), "
+                 "radial-gradient(#6B9EB8 5%, #59B1DE 60%, #033882 70%)")
             :border-radius "80px"
             :animation-name animation
+            :box-shadow "0 2px 5px 0 rgba(0, 0, 0, .26)"
+            :background-color "#6B9EB8"
             :animation-duration "1s"
             :animation-fill-mode "forwards"})))
 
