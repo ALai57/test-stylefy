@@ -28,5 +28,7 @@
   (let [radial-menu-open? (re-frame/subscribe [:radial-menu-open?])]
     [:div
      [:h1 (str "Is the radial menu open? " @radial-menu-open?)]
-     (rm/radial-menu icon-list nil)
-     ]))
+     [:div {:style {:position "absolute"
+                    :top "100px"
+                    :width "80%"
+                    :height "80%"}} v (rm/radial-menu icon-list nil)]]))

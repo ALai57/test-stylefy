@@ -12,37 +12,6 @@
 (stylefy/init)
 (defonce active? (atom true))
 
-(def image-container-style {:position "absolute"
-                            :top "100px"
-                            :left "10%"
-                            :width "80%"
-                            :height "80%"})
-
-(def main-image-style {:position "relative"
-                       :top "50%"
-                       :left "50%"})
-
-(def base-icon-style {:border "1px solid black"
-                      :background-color "#FFDDDD"
-                      :text-align :center
-                      :padding "5px"
-                      :width "75px"
-                      :height "75px"
-                      :position "absolute"
-                      :background-repeat "no-repeat"
-                      :background-position-x "center"
-                      :background-position-y "center"
-                      :border-radius "80px"})
-
-(def center-icon-style (merge base-icon-style
-                              {:background-image
-                               (str "url(images/home.svg),"
-                                    "radial-gradient(#6B9EB8 5%, #59B1DE 60%, #033882 70%)")
-                               :border-radius "80px"}))
-
-(def radial-icons-style {:position "relative"
-                         :top "50%"
-                         :left "50%"})
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Animations
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -156,6 +125,39 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; COMPONENT
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+(def image-container-style {:width "275px"
+                            :height "275px"
+                            :margin "auto"})
+
+(def main-image-style {:position "absolute"
+                       :top "100px"
+                       :left "calc(50% - 75px/2)"})
+
+(def base-icon-style {:border "1px solid black"
+                      :background-color "#FFDDDD"
+                      :text-align :center
+                      :padding "5px"
+                      :width "75px"
+                      :height "75px"
+                      :position "absolute"
+                      :background-repeat "no-repeat"
+                      :background-position-x "center"
+                      :background-position-y "center"
+                      :border-radius "80px"})
+
+(def center-icon-style
+  (merge base-icon-style
+         {:background-image
+          (str "url(images/home.svg),"
+               "radial-gradient(#6B9EB8 5%, #59B1DE 60%, #033882 70%)")
+          :border-radius "80px"}))
+
+(def radial-icons-style {:position "absolute"
+                         :top "100px"
+                         :left "calc(50% - 75px/2)"})
+
 
 (defn radial-menu [icons props]
   [:div#image-container {:style image-container-style}
