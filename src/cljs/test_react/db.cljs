@@ -1,4 +1,5 @@
 (ns test-react.db)
 
 (def default-db
-  {:name "re-frame"})
+  {:name "re-frame"
+   :radial-menu-open? false})

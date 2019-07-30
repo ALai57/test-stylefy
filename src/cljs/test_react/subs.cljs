@@ -6,3 +6,8 @@
  ::name
  (fn [db]
    (:name db)))
+
+(re-frame/reg-sub
+ :radial-menu-open?
+ (fn [db]
+   (:radial-menu-open? db)))

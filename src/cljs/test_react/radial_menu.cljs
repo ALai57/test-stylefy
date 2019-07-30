@@ -1,6 +1,6 @@
 (ns test-react.radial-menu
   (:require
-   [re-frame.core :as re-frame]
+   [re-frame.core :refer [dispatch]]
    [test-react.subs :as subs]
    [stylefy.core :as stylefy :refer [use-style]]
    [garden.units :as g]
@@ -79,6 +79,9 @@
 
 ;; Instaed of deleting - have a property for forward and reverse animation...
 (defn toggle-keyframe []
+  (dispatch [:toggle-menu]))
+
+(defn -toggle-keyframe []
   (if @active?
     (reduce #(create-expand-animation (first %2)
                                       (second %2)
@@ -131,7 +134,7 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; FINAL RENDERING
+;; COMPONENT
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn radial-menu [icons props]
