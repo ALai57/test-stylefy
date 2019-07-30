@@ -60,7 +60,7 @@
 
 
 ;; Instaed of deleting - have a property for forward and reverse animation...
-(defn toggle-keyframe []
+(defn toggle-animation []
   (dispatch [:toggle-menu]))
 
 (comment
@@ -112,10 +112,17 @@
             :animation-duration "1s"
             :animation-fill-mode "forwards"})))
 
+
+(defn icon-click-handler [i]
+  (fn []
+    (dispatch [:click-radial-icon i])))
+
 (defn create-radial-icon [i img]
-  ^{:key (str "radial-" i)}
-  [:button  (merge {:onClick toggle-keyframe}
-                   (use-style (make-radial-icon-style i img)))])
+  (let [radial-icon-style (make-radial-icon-style i img)
+        img (:background-image radial-icon-style)]
+    ^{:key (str "radial-" i)}
+    [:button  (merge {:onClick (icon-click-handler img)}
+                     (use-style radial-icon-style))]))
 
 (defn create-radial-icons [icons]
   [:div {:style radial-icons-style}
@@ -133,7 +140,8 @@
 
 (def main-image-style {:position "absolute"
                        :top "100px"
-                       :left "calc(50% - 75px/2)"})
+                       :left "calc(50% - 75px/2)"
+                       :z-index "4"})
 
 (def base-icon-style {:border "1px solid black"
                       :background-color "#FFDDDD"
@@ -147,12 +155,12 @@
                       :background-position-y "center"
                       :border-radius "80px"})
 
-(def center-icon-style
-  (merge base-icon-style
-         {:background-image
-          (str "url(images/home.svg),"
-               "radial-gradient(#6B9EB8 5%, #59B1DE 60%, #033882 70%)")
-          :border-radius "80px"}))
+(defn center-icon-style []
+  (let [active-icon (subscribe [:active-icon])]
+    (merge base-icon-style
+           {:background-image
+            @active-icon
+            :border-radius "80px"})))
 
 (def radial-icons-style {:position "absolute"
                          :top "100px"
@@ -162,8 +170,8 @@
 (defn radial-menu [icons props]
   [:div#image-container {:style image-container-style}
    [:div.main-image {:style main-image-style}
-    [:button#center-icon (merge {:onClick toggle-keyframe}
-                                (use-style center-icon-style))]]
+    [:button#center-icon (merge {:onClick toggle-animation}
+                                (use-style (center-icon-style)))]]
    [:div {:style radial-icons-style}]
    (create-radial-icons icons props)])
 

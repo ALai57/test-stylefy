@@ -11,6 +11,11 @@
 
 (re-frame/reg-event-db
  :toggle-menu
- (fn [db [_ value]]
+ (fn [db [_ _]]
    (let [new-value (not (:radial-menu-open? db))]
      (assoc db :radial-menu-open? new-value))))
+
+(re-frame/reg-event-db
+ :click-radial-icon
+ (fn [db [_ value]] 
+   (assoc db :active-icon value)))

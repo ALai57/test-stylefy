@@ -11,3 +11,8 @@
  :radial-menu-open?
  (fn [db]
    (:radial-menu-open? db)))
+
+(re-frame/reg-sub
+ :active-icon
+ (fn [db]
+   (:active-icon db)))
