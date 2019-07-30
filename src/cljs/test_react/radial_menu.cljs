@@ -12,6 +12,34 @@
 (stylefy/init)
 (defonce active? (atom true))
 
+(def image-container-style {:width "275px"
+                            :height "275px"
+                            :margin "auto"})
+
+(def main-image-style {:position "absolute"
+                       :top "100px"
+                       :left "calc(50% - 75px/2)"
+                       :z-index "4"})
+
+(def base-icon-style {:border "1px solid black"
+                      :background-color "#FFDDDD"
+                      :text-align :center
+                      :padding "5px"
+                      :width "75px"
+                      :height "75px"
+                      :position "absolute"
+                      :background-repeat "no-repeat"
+                      :background-position-x "center"
+                      :background-position-y "center"
+                      :border-radius "80px"})
+
+(defn center-icon-style []
+  (let [active-icon (subscribe [:active-icon])]
+    (merge base-icon-style
+           {:background-image
+            @active-icon
+            :border-radius "80px"})))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Animations
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -134,33 +162,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-(def image-container-style {:width "275px"
-                            :height "275px"
-                            :margin "auto"})
-
-(def main-image-style {:position "absolute"
-                       :top "100px"
-                       :left "calc(50% - 75px/2)"
-                       :z-index "4"})
-
-(def base-icon-style {:border "1px solid black"
-                      :background-color "#FFDDDD"
-                      :text-align :center
-                      :padding "5px"
-                      :width "75px"
-                      :height "75px"
-                      :position "absolute"
-                      :background-repeat "no-repeat"
-                      :background-position-x "center"
-                      :background-position-y "center"
-                      :border-radius "80px"})
-
-(defn center-icon-style []
-  (let [active-icon (subscribe [:active-icon])]
-    (merge base-icon-style
-           {:background-image
-            @active-icon
-            :border-radius "80px"})))
 
 (def radial-icons-style {:position "absolute"
                          :top "100px"
@@ -174,4 +175,3 @@
                                 (use-style (center-icon-style)))]]
    [:div {:style radial-icons-style}]
    (create-radial-icons icons props)])
-

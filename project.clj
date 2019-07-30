@@ -5,7 +5,7 @@
                  [re-frame "0.10.8"]
                  ;;[stylefy "1.13.3"]
                  [org.clojars.alai/stylefy-fork "1.13.3"]
-                 ]
+                 [re-com "2.5.0"]]
 
   :plugins [[lein-cljsbuild "1.1.7"]
             [lein-figwheel "0.5.18"]]
@@ -40,7 +40,8 @@
                     :asset-path           "js/compiled/out"
                     :source-map-timestamp true
                     :preloads             [devtools.preload]
-                    :external-config      {:devtools/config {:features-to-install :all}}
+                    :external-config      {:devtools/config
+                                           {:features-to-install :all}}
                     }}
 
     {:id           "min"

@@ -1,11 +1,11 @@
 (ns test-react.views
-  (:require
-   [re-frame.core :as re-frame]
-   [test-react.subs :as subs]
-   [test-react.radial-menu :as rm]
-   [stylefy.core :as stylefy :refer [use-style]]
-   [garden.units :as g]
-   [cljs.pprint :as pprint]))
+  (:require [cljs.pprint :as pprint]
+            [garden.units :as g]
+            [re-frame.core :as re-frame]
+            [stylefy.core :as stylefy :refer [use-style]]
+            [test-react.radial-menu :as rm]
+            [test-react.recom-radial-menu :as rcm]
+            [test-react.subs :as subs]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Setup/init
@@ -31,4 +31,7 @@
      [:div {:style {:position "absolute"
                     :top "100px"
                     :width "80%"
-                    :height "80%"}} v (rm/radial-menu icon-list nil)]]))
+                    :height "80%"}} v (rm/radial-menu icon-list nil)]
+     ((rcm/radial-menu)
+      :radial-menu-name "radial-menu-1"
+      :tooltip "My button is here!")]))
