@@ -1,6 +1,6 @@
 (ns test-react.radial-menu
   (:require
-   [re-frame.core :refer [dispatch]]
+   [re-frame.core :refer [dispatch subscribe]]
    [test-react.subs :as subs]
    [stylefy.core :as stylefy :refer [use-style]]
    [garden.units :as g]
@@ -73,8 +73,19 @@
                       {:top (calc-y-position radius i n-icons)
                        :left (calc-x-position radius i n-icons)}]))
 
+(defn create-collapse-animation [radius i n-icons]
+  (stylefy/keyframes (str "icon-" i "-collapse")
+                     [(g/percent 0)
+                      {:top (calc-y-position radius i n-icons)
+                       :left (calc-x-position radius i n-icons)}]
+                     [(g/percent 100)
+                      {:top "0px"
+                       :left "0px"}]))
+
 (defn delete-expand-animation [i]
   (stylefy/keyframes (str"icon-" i "-open")))
+(defn delete-collapse-animation [i]
+  (stylefy/keyframes (str"icon-" i "-collapse")))
 
 
 ;; Instaed of deleting - have a property for forward and reverse animation...
@@ -98,10 +109,25 @@
     (reduce #(delete-expand-animation %2) [] (range 8)))
   (reset! active? (not @active?)))
 
-(create-expand-animation 200 1 8)
+(comment
+  (create-expand-animation 200 1 8)
+  (create-collapse-animation 200 1 8))
+
 (reduce #(create-expand-animation (first %2)
                                   (second %2)
                                   (nth %2 2))
+        []
+        [[200 0 8]
+         [200 1 8]
+         [200 2 8]
+         [200 3 8]
+         [200 4 8]
+         [200 5 8]
+         [200 6 8]
+         [200 7 8]])
+(reduce #(create-collapse-animation (first %2)
+                                    (second %2)
+                                    (nth %2 2))
         []
         [[200 0 8]
          [200 1 8]
@@ -117,20 +143,25 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn make-radial-icon-style [i img]
-  (merge base-icon-style
-         {:background-image (str "url(" img ")" )
-          :border-radius "80px"
-          :animation-name (str "icon-" i "-open")
-          :animation-duration "1s"
-          :animation-fill-mode "forwards"}))
+  (let [radial-menu-open? (subscribe [:radial-menu-open?])
+        animation (if @radial-menu-open?
+                    (str "icon-" i "-collapse")
+                    (str "icon-" i "-open"))]
+    (merge base-icon-style
+           {:background-image (str "url(" img ")" )
+            :border-radius "80px"
+            :animation-name animation
+            :animation-duration "1s"
+            :animation-fill-mode "forwards"})))
 
 (defn create-radial-icon [i img]
-  [:button (merge {:onClick toggle-keyframe}
-                  (use-style (make-radial-icon-style i img)))])
+  ^{:key (str "radial-" i)}
+  [:button  (merge {:onClick toggle-keyframe}
+                   (use-style (make-radial-icon-style i img)))])
 
 (defn create-radial-icons [icons]
   [:div {:style radial-icons-style}
-   (map-indexed create-radial-icon icons)])
+   (doall (map-indexed create-radial-icon icons))])
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -142,5 +173,6 @@
    [:div.main-image {:style main-image-style}
     [:button#center-icon (merge {:onClick toggle-keyframe}
                                 (use-style center-icon-style))]]
+   [:div {:style radial-icons-style}]
    (create-radial-icons icons props)])
 
