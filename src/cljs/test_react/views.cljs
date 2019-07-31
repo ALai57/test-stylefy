@@ -28,10 +28,18 @@
   (let [radial-menu-open? (re-frame/subscribe [:radial-menu-open?])]
     [:div
      [:h1 (str "Is the radial menu open? " @radial-menu-open?)]
-     [:div {:style {:position "absolute"
-                    :top "100px"
-                    :width "80%"
-                    :height "80%"}} v (rm/radial-menu icon-list nil)]
+     [:div {:style {:position "static"
+                    :height "275px"
+                    :width "275px"}}
+      [:div {:style {:position "absolute"}} (rm/radial-menu icon-list nil)]]
      ((rcm/radial-menu)
       :radial-menu-name "radial-menu-1"
-      :tooltip "My button is here!")]))
+      :menu-radius "100px"
+      :background-images ["images/home.svg" "images/lock.svg"]
+      :tooltip [:div#tooltip {:style {:text-align "left"
+                                      :width "100px"}}
+                [:p "My button is here!"]]
+      :radial-icon-style {:width "100px"
+                          :height "100px"
+                          :background-color "aquamarine"
+                          :position "static"})]))
