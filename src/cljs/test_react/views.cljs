@@ -27,7 +27,7 @@
 (defn toggle-animation []
   (re-frame/dispatch [:toggle-menu]))
 
-(defn icon-click-handler [icon-url] 
+(defn icon-click-handler [icon-url]
   (fn [] (re-frame/dispatch [:click-radial-icon icon-url])))
 
 (def base-icon-style {:border "1px solid black"
@@ -61,11 +61,6 @@
             :animation-duration "1s"
             :animation-fill-mode "forwards"})))
 
-(def main-image-style {:position "absolute"
-                       :top "100px"
-                       :left "calc(50% - 75px/2)"
-                       :z-index "4"})
-
 (defn main-panel []
   (let [radial-menu-open? (re-frame/subscribe [:radial-menu-open?])]
     [:div
@@ -74,13 +69,16 @@
                     :height "275px"
                     :width "275px"}}
       [:div {:style {:position "absolute"}} (rm/radial-menu icon-list nil)]]
+
      ((rcm/radial-menu)
       :radial-menu-name "radial-menu-1"
       :menu-radius "100px"
+      ;; Get rid of these - add to style
       :center-icon-radius "75px"
       :radial-icon-radius "75px"
-      :background-images ["images/home.svg" "images/lock.svg"]
+      :background-images icon-list
       :open? @radial-menu-open?
+      ;; Rename on-center-icon-click on-radial-icon-click
       :center-on-click toggle-animation
       :radial-on-click icon-click-handler
       :center-icon-style-fn center-icon-style
@@ -88,4 +86,15 @@
                                       :width "100px"}}
                 [:p "My button is here!"]]
       :radial-icon-style-fn make-radial-icon-style)])
+  )
+
+(comment
+  ["images/accessibility.svg"
+   "images/favorite.svg"
+   "images/find-in-page.svg"
+   "images/get-app.svg"
+   "images/grade.svg"
+   "images/home.svg"
+   "images/language.svg"
+   "images/lock.svg"]
   )

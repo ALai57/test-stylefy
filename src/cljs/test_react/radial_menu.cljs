@@ -96,30 +96,30 @@
   (create-expand-animation 200 1 8)
   (create-collapse-animation 200 1 8))
 
-(reduce #(create-expand-animation (first %2)
-                                  (second %2)
-                                  (nth %2 2))
-        []
-        [[100 0 8]
-         [100 1 8]
-         [100 2 8]
-         [100 3 8]
-         [100 4 8]
-         [100 5 8]
-         [100 6 8]
-         [100 7 8]])
-(reduce #(create-collapse-animation (first %2)
+#_(reduce #(create-expand-animation (first %2)
                                     (second %2)
                                     (nth %2 2))
-        []
-        [[100 0 8]
-         [100 1 8]
-         [100 2 8]
-         [100 3 8]
-         [100 4 8]
-         [100 5 8]
-         [100 6 8]
-         [100 7 8]])
+          []
+          [[100 0 8]
+           [100 1 8]
+           [100 2 8]
+           [100 3 8]
+           [100 4 8]
+           [100 5 8]
+           [100 6 8]
+           [100 7 8]])
+#_(reduce #(create-collapse-animation (first %2)
+                                      (second %2)
+                                      (nth %2 2))
+          []
+          [[100 0 8]
+           [100 1 8]
+           [100 2 8]
+           [100 3 8]
+           [100 4 8]
+           [100 5 8]
+           [100 6 8]
+           [100 7 8]])
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; TEST/EXAMPLE CODE

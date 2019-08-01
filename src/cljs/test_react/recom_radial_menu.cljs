@@ -1,7 +1,8 @@
 (ns test-react.recom-radial-menu
-  (:require-macros [re-com.core :refer [handler-fn]]
-                   [garden.units :as g])
-  (:require [re-com.validate :refer [position?
+  (:require-macros [re-com.core :refer [handler-fn]])
+  (:require [cljs.pprint :as pprint]
+            [garden.units :as g]
+            [re-com.validate :refer [position?
                                      position-options-list
                                      button-size?
                                      button-sizes-list
@@ -15,6 +16,52 @@
             [stylefy.core :as stylefy :refer [use-style]]))
 
 (stylefy/init)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Animations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn parse-int [s]
+  (int (re-find  #"\d+" s )))
+
+(defn frac->rad [x]
+  (* 2 Math/PI x))
+
+(defn calc-y-position [radius i n-icons]
+  (pprint/cl-format nil "~,2fpx" (-> (/ i n-icons)
+                                     frac->rad
+                                     Math/sin
+                                     (* radius))))
+(defn calc-x-position [radius i n-icons]
+  (pprint/cl-format nil "~,2fpx" (-> (/ i n-icons)
+                                     frac->rad
+                                     Math/cos
+                                     (* radius))))
+
+(defn create-expand-animation [radius i n-icons]
+  (println "---- expand ----")
+  (println radius i n-icons)
+  (println (calc-y-position radius i n-icons))
+  (stylefy/keyframes (str "icon-" i "-open")
+                     [(g/percent 0)
+                      {:top "0px"
+                       :left "0px"}]
+                     [(g/percent 100)
+                      {:top (calc-y-position radius i n-icons)
+                       :left (calc-x-position radius i n-icons)}]))
+
+(defn create-collapse-animation [radius i n-icons]
+  (stylefy/keyframes (str "icon-" i "-collapse")
+                     [(g/percent 0)
+                      {:top (calc-y-position radius i n-icons)
+                       :left (calc-x-position radius i n-icons)}]
+                     [(g/percent 100)
+                      {:top "0px"
+                       :left "0px"}]))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Radial menu
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (def radial-menu-args-desc
   [{:name :radial-menu-name      :required true  :default "radial-menu-1" :type "string"          :validate-fn string?           :description [:span "the name of the icon." [:br] "For example, " [:code "\"radial-menu-1\""] " or " [:code "\"sports-menu\""]]}
@@ -50,6 +97,16 @@
           :as   args}]
       {:pre [(validate-args-macro radial-menu-args-desc args "radial-menu-1")]}
       (when-not tooltip (reset! showing? false)) ;; To prevent tooltip from still showing after button drag/drop
+
+      ;; Adds keyframes to DOM under <style id="_stylefy-constant-styles_">
+      (defonce animations
+        (let [n-images (count background-images)
+              _ (println n-images background-images menu-radius)
+              animate-radial-icons (fn [animation]
+                                     (reduce #(apply animation %2)  []
+                                             (map-indexed #(vector (parse-int menu-radius) %1 n-images) background-images)))]
+          (animate-radial-icons create-expand-animation)
+          (animate-radial-icons create-collapse-animation)))
 
       (let [menu-size (str "calc(2*" menu-radius " + " radial-icon-radius ")")
             center-icon-position (str "calc(50% - " radial-icon-radius "/2)")
@@ -88,81 +145,23 @@
                   the-menu)]))))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Move Animations Inside recom
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (comment
-  (require '[garden.units :as g])
-  (require '[cljs.pprint :as pprint])
-
-  (defn frac->rad [x]
-    (* 2 Math/PI x))
-
-  (defn calc-y-position [radius i n-icons]
-    (pprint/cl-format nil "~,2fpx" (-> (/ i n-icons)
-                                       frac->rad
-                                       Math/sin
-                                       (* radius))))
-  (defn calc-x-position [radius i n-icons]
-    (pprint/cl-format nil "~,2fpx" (-> (/ i n-icons)
-                                       frac->rad
-                                       Math/cos
-                                       (* radius))))
-
+  
+  
+  (parse-int "100px")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; ON CLICK BEHAVIOR
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-  (def percentages
-    [0 100])
-  (defn frames [radius i n-icons]
-    [{:top "0px" :left "0px"}
-     {:top (calc-y-position radius i n-icons)
-      :left (calc-x-position radius i n-icons)}])
 
-  (apply map #(vector %1 %2)
-         (map g/percent percentages) (frames 100 1 8))
-
-  (defn create-expand-animation [radius i n-icons]
-    (stylefy/keyframes (str "icon-" i "-open")
-                       (apply map #(vector %1 %2)
-                              (map g/percent percentages)
-                              (frames radius i n-icons))))
-
-  (defn calculate-animation [percentages frames radius i n-icons]
-    )
-  (defn create-collapse-animation [radius i n-icons]
-    (stylefy/keyframes (str "icon-" i "-collapse")
-                       (apply map #(vector %1 %2)
-                              (map g/percent (map #(- 100 %1) percentages))
-                              (frames radius i n-icons))))
-
-  (defn create-animation [identifier percentages frames]
-    (stylefy/keyframes identifier
-                       (apply map #(vector %1 %2)
-                              (map g/percent percentages)
-                              frames)))
-
-  (defn create-animations [] 
-    (create-animation (str "icon-i-collapse") percentages (frames radius i n-icons))
-    (create-animation (str "icon-i-collapse") percentages (frames radius i n-icons)))
-
-  
-  (create-animation (str "icon-i-collapse") percentages (frames radius i n-icons))
-  (create-animation (str "icon-i-expand") percentages (frames radius i n-icons))
-
-
-  
-  
-  
   (create-expand-animation 200 1 8)
   (create-collapse-animation 200 1 8)
   (calc-x-position 200 1 8)
-  
 
 
-  
+
+
   (def icon-list ["images/accessibility.svg"
                   "images/favorite.svg"
                   "images/find-in-page.svg"
@@ -171,12 +170,10 @@
                   "images/home.svg"
                   "images/language.svg"
                   "images/lock.svg"])
-  
-  (reduce #(apply create-expand-animation %2)
-          []
-          (map-indexed #(vector 100 %1 (count icon-list)) icon-list))
-  (reduce #(apply create-collapse-animation %2)
-          []
-          (map-indexed #(vector 100 %1 (count icon-list)) icon-list))
+
+  (let [animate-radial-icons (fn [animation]
+                               (reduce #(apply animation %2)  []
+                                       (map-indexed #(vector 100 %1 2) icon-list)))]
+    (animate-radial-icons create-expand-animation))
   )
 
