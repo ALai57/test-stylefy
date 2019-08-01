@@ -27,8 +27,11 @@
 (defn toggle-animation []
   (re-frame/dispatch [:toggle-menu]))
 
+(defn icon-click-handler [icon-url]
+  (println "clicked: " icon-url)
+  (fn [] (re-frame/dispatch [:click-radial-icon icon-url])))
+
 (def base-icon-style {:border "1px solid black"
-                      :background-color "#FFDDDD"
                       :text-align :center
                       :padding "5px"
                       :width "75px"
@@ -42,10 +45,27 @@
 (defn center-icon-style []
   (let [active-icon (re-frame/subscribe [:active-icon])]
     (merge base-icon-style
-           {:background-image
-            @active-icon
-            :border-radius "80px"})))
+           {:background-image (str @active-icon
+                                   ", radial-gradient(#6B9EB8 5%, #59B1DE 60%, #033882 70%)")})))
 
+(defn make-radial-icon-style [i icon-url]
+  (let [radial-menu-open? (re-frame/subscribe [:radial-menu-open?])
+        animation (if @radial-menu-open?
+                    (str "icon-" i "-open")
+                    (str "icon-" i "-collapse"))]
+    (merge base-icon-style
+           {:background-image
+            (str "url(" icon-url "), "
+                 "radial-gradient(#6B9EB8 5%, #59B1DE 60%, #033882 70%)")
+            :box-shadow "0 2px 5px 0 rgba(0, 0, 0, .26)"
+            :animation-name animation
+            :animation-duration "1s"
+            :animation-fill-mode "forwards"})))
+
+(def main-image-style {:position "absolute"
+                       :top "100px"
+                       :left "calc(50% - 75px/2)"
+                       :z-index "4"})
 
 (defn main-panel []
   (let [radial-menu-open? (re-frame/subscribe [:radial-menu-open?])]
@@ -58,14 +78,15 @@
      ((rcm/radial-menu)
       :radial-menu-name "radial-menu-1"
       :menu-radius "100px"
+      :center-icon-radius "75px"
+      :radial-icon-radius "75px"
       :background-images ["images/home.svg" "images/lock.svg"]
       :open? @radial-menu-open?
       :center-on-click toggle-animation
-      :center-icon-style (center-icon-style)
+      :radial-on-click icon-click-handler
+      :center-icon-style-fn center-icon-style
       :tooltip [:div#tooltip {:style {:text-align "left"
                                       :width "100px"}}
                 [:p "My button is here!"]]
-      :radial-icon-style {:width "100px"
-                          :height "100px"
-                          :background-color "aquamarine"
-                          :position "static"})]))
+      :radial-icon-style-fn make-radial-icon-style)])
+  )

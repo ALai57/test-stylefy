@@ -37,7 +37,8 @@
   (let [active-icon (subscribe [:active-icon])]
     (merge base-icon-style
            {:background-image
-            @active-icon
+            (str @active-icon
+                 ", radial-gradient(#6B9EB8 5%, #59B1DE 60%, #033882 70%)")
             :border-radius "80px"})))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
