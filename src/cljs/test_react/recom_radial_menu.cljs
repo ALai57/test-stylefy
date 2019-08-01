@@ -10,13 +10,17 @@
                                      string-or-atom?] :refer-macros [validate-args-macro]]
             [re-com.popover  :refer [popover-tooltip]]
             [re-com.box      :refer [box]]
-            [reagent.core    :as    reagent]))
+            [reagent.core    :as    reagent]
+            [stylefy.core :as stylefy :refer [use-style]]))
+
+(stylefy/init)
 
 (def radial-menu-args-desc
   [{:name :radial-menu-name    :required true  :default "radial-menu-1" :type "string"          :validate-fn string?           :description [:span "the name of the icon." [:br] "For example, " [:code "\"radial-menu-1\""] " or " [:code "\"sports-menu\""]]}
    {:name :menu-radius         :required true  :default "100px"         :type "string"          :validate-fn string?           :description [:span "how far the icons move radially." [:br] "For example, " [:code "\"100px\""] " or " [:code "\"50px\""]]}
    {:name :background-images   :required false                          :type "vector"          :validate-fn vector?           :description [:span "A list of all background image urls used for icons" [:br] "For example, " [:code "[\"images/home.svg\", \"images/lock.svg\"]"]]}
-   {:name :on-click            :required false                          :type "-> nil"          :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the button is clicked"}
+   {:name :center-on-click     :required false                          :type "-> nil"          :validate-fn fn?               :description "a function which takes no params and returns nothing. Called when the button is clicked"}
+   {:name :open?               :required true                           :type "boolean"         :validate-fn boolean?          :description "is the radial menu open?"}
    {:name :tooltip             :required false                          :type "string | hiccup" :validate-fn string-or-hiccup? :description "what to show in the tooltip"}
    {:name :tooltip-position    :required false :default :below-center   :type "keyword"         :validate-fn position?         :description [:span "relative to this anchor. One of " position-options-list]}
    {:name :disabled?           :required false :default false           :type "boolean"                                        :description "if true, the user can't click the button"}
@@ -31,7 +35,7 @@
   (let [showing? (reagent/atom false)]
     (fn
       [& {:keys [radial-menu-name menu-radius background-images
-                 on-click size
+                 center-on-click open? size
                  tooltip tooltip-position
                  disabled? class
                  center-icon-style radial-icon-style attr]
@@ -44,28 +48,8 @@
       ;; Add them to function signature/destructuring/validation
       ;; Remove this DIV and replace with my code
       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-      (let [the-menu [:div
-                      (merge
-                       {:class    (str
-                                   "rc-md-icon-button noselect "
-                                   (case size
-                                     :smaller "rc-icon-smaller "
-                                     :larger "rc-icon-larger "
-                                     " ")
-                                   (when disabled? "rc-icon-disabled ")
-                                   class)
-                        :style    (merge
-                                   {:cursor (when-not disabled? "pointer")}
-                                   radial-icon-style)
-                        :on-click (handler-fn
-                                   (when (and on-click (not disabled?))
-                                     (on-click event)))}
-                       (when tooltip
-                         {:on-mouse-over (handler-fn (reset! showing? true))
-                          :on-mouse-out  (handler-fn (reset! showing? false))})
-                       attr)
-                      [:i {:class (str "zmdi zmdi-hc-fw-rc " radial-menu-name)} menu-radius]
-                      [:p (str background-images)]]]
+      (let [the-menu [:button#center-icon (merge {:onClick center-on-click}
+                                                 (use-style center-icon-style))]]
         [box
          :class "rc-md-icon-button-wrapper display-inline-flex"
          :align :start
@@ -76,3 +60,27 @@
                    :showing? showing?
                    :anchor   the-menu]
                   the-menu)]))))
+
+
+#_[:div
+   (merge
+    {:class    (str
+                "rc-md-icon-button noselect "
+                (case size
+                  :smaller "rc-icon-smaller "
+                  :larger "rc-icon-larger "
+                  " ")
+                (when disabled? "rc-icon-disabled ")
+                class)
+     :style    (merge
+                {:cursor (when-not disabled? "pointer")}
+                radial-icon-style)
+     :on-click (handler-fn
+                (when (and on-click (not disabled?))
+                  (on-click event)))}
+    (when tooltip
+      {:on-mouse-over (handler-fn (reset! showing? true))
+       :on-mouse-out  (handler-fn (reset! showing? false))})
+    attr)
+   [:i {:class (str "zmdi zmdi-hc-fw-rc " radial-menu-name)} menu-radius]
+   [:p {:style {:background-color (if open? "red" "blue")}} (str background-images)]]
