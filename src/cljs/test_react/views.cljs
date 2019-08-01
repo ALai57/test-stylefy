@@ -27,8 +27,7 @@
 (defn toggle-animation []
   (re-frame/dispatch [:toggle-menu]))
 
-(defn icon-click-handler [icon-url]
-  (println "clicked: " icon-url)
+(defn icon-click-handler [icon-url] 
   (fn [] (re-frame/dispatch [:click-radial-icon icon-url])))
 
 (def base-icon-style {:border "1px solid black"
