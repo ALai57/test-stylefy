@@ -20,32 +20,38 @@
                 "images/language.svg"
                 "images/lock.svg"])
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; RENDERING
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defn toggle-animation []
-  (re-frame/dispatch [:toggle-menu]))
-
-(defn icon-click-handler [icon-url]
-  (fn [] (re-frame/dispatch [:click-radial-icon icon-url])))
+(def center-icon-radius "75px")
+(def radial-icon-radius "75px")
+(def icon-color-scheme (str "radial-gradient(#6B9EB8 5%, "
+                            "#59B1DE 60%, "
+                            "#033882 70%)"))
 
 (def base-icon-style {:border "1px solid black"
                       :text-align :center
                       :padding "5px"
-                      :width "75px"
-                      :height "75px"
                       :position "absolute"
                       :background-repeat "no-repeat"
                       :background-position-x "center"
                       :background-position-y "center"
                       :border-radius "80px"})
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; RENDERING
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn expand-or-contract []
+  (re-frame/dispatch [:toggle-menu]))
+
+(defn icon-click-handler [icon-url]
+  (fn [] (re-frame/dispatch [:click-radial-icon icon-url])))
 
 (defn center-icon-style []
   (let [active-icon (re-frame/subscribe [:active-icon])]
     (merge base-icon-style
            {:background-image (str @active-icon
-                                   ", radial-gradient(#6B9EB8 5%, #59B1DE 60%, #033882 70%)")})))
+                                   ", "
+                                   icon-color-scheme)
+            :width center-icon-radius
+            :height center-icon-radius})))
 
 (defn make-radial-icon-style [i icon-url]
   (let [radial-menu-open? (re-frame/subscribe [:radial-menu-open?])
@@ -55,7 +61,9 @@
     (merge base-icon-style
            {:background-image
             (str "url(" icon-url "), "
-                 "radial-gradient(#6B9EB8 5%, #59B1DE 60%, #033882 70%)")
+                 icon-color-scheme)
+            :width radial-icon-radius
+            :height radial-icon-radius
             :box-shadow "0 2px 5px 0 rgba(0, 0, 0, .26)"
             :animation-name animation
             :animation-duration "1s"
@@ -73,19 +81,20 @@
      ((rcm/radial-menu)
       :radial-menu-name "radial-menu-1"
       :menu-radius "100px"
-      ;; Get rid of these - add to style
-      :center-icon-radius "75px"
-      :radial-icon-radius "75px"
       :background-images icon-list
       :open? @radial-menu-open?
-      ;; Rename on-center-icon-click on-radial-icon-click
-      :center-on-click toggle-animation
-      :radial-on-click icon-click-handler
-      :center-icon-style-fn center-icon-style
       :tooltip [:div#tooltip {:style {:text-align "left"
                                       :width "100px"}}
                 [:p "My button is here!"]]
-      :radial-icon-style-fn make-radial-icon-style)])
+
+      :center-icon-radius center-icon-radius
+      :on-center-icon-click expand-or-contract
+      :center-icon-style-fn center-icon-style
+
+      :radial-icon-radius radial-icon-radius
+      :on-radial-icon-click icon-click-handler
+      :radial-icon-style-fn make-radial-icon-style
+      )])
   )
 
 (comment
